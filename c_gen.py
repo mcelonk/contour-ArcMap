@@ -61,7 +61,6 @@ arcpy.GenerateNearTable_analysis(p_contour, p_contour_high, near_table_high, "#"
 #    arcpy.Near_analysis(p, p_contour_high,"10 Meters", "LOCATION")
 
 #vytvoreni linii pokud hleda 1 nejblizsi
-
 if closest_count == 1:
     fc = "linie.shp"
     arcpy.CreateFeatureclass_management("/output", fc, "POLYLINE", "", "", "", 5514)
@@ -82,7 +81,26 @@ if closest_count == 1:
             cursor.insertRow([linie])
         del cursor
         points = points - 1
+    body = arcpy.FeatureVerticesToPoints_management("/output/" + fc, "body.shp", "MID")
+    arcpy.JoinField_management(body, "FID", p_contour, "FID", ["Contour", "ORIG_FID"])
+    arcpy.DeleteIdentical_management(body, ["Shape"], "", "")
 
+#vytvorit body bez potreby vykreslovat shapefile
+if closest_count == 2:
+    points = arcpy.GetCount_management(p_contour)
+    points = int(points[0])
+    fc = "body.shp"
+    arcpy.CreateFeatureclass_management("/output", fc, "POINT", "", "", "", 5514)
+    while points != 0:
+        expression = "NEAR_RANK <= {} AND IN_FID = {}".format(closest_count, points - 1)
+        with arcpy.da.SearchCursor(near_table_low, ['NEAR_X', 'NEAR_Y'], where_clause=expression) as cursor:
+            for row in cursor:
+                p1 = arcpy.Point(row[0], row[1])
+        with arcpy.da.SearchCursor(near_table_high, ['NEAR_X', 'NEAR_Y'], where_clause=expression) as cursor:
+            for row in cursor:
+                p2 = arcpy.Point(row[0], row[1])
+
+        points = points - 1
 
 
 
