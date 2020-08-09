@@ -271,16 +271,16 @@ point_contour_high = arcpy.FeatureVerticesToPoints_management(contour_high, "/ou
 # vymazani dat v pameti
 del contour_high, contour_low, triangle
 
-nneighbours = 1
+nneighbours = 5
 if nneighbours > 1:
     vrstevnice = more_nearest(contours, point_contour_low, point_contour_high, nneighbours)
-    arcpy.CopyFeatures_management("/output/db.gdb/" + vrstevnice, "/output/db.gdb/prvni_iterace_polygon_3nn")
+    arcpy.CopyFeatures_management("/output/db.gdb/" + vrstevnice, "/output/db.gdb/prvni_iterace_polygon_5nn")
     print ("prvni iterace done")
     vrstevnice = more_nearest("/output/db.gdb/" + vrstevnice, point_contour_low, point_contour_high, nneighbours)
-    arcpy.CopyFeatures_management("/output/db.gdb/" + vrstevnice, "/output/db.gdb/druha_iterace_polygon_3nn")
+    arcpy.CopyFeatures_management("/output/db.gdb/" + vrstevnice, "/output/db.gdb/druha_iterace_polygon_5nn")
     print ("druha iterace done")
     vrstevnice = more_nearest("/output/db.gdb/" + vrstevnice, point_contour_low, point_contour_high, nneighbours)
-    arcpy.CopyFeatures_management("/output/db.gdb/" + vrstevnice, "/output/db.gdb/treti_iterace_polygon_3nn")
+    arcpy.CopyFeatures_management("/output/db.gdb/" + vrstevnice, "/output/db.gdb/treti_iterace_polygon_5nn")
     print ("treti iterace done")
 elif nneighbours < 1:
     vrstevnice = one_nearest(contours, point_contour_low, point_contour_high)
